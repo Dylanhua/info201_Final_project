@@ -1,27 +1,29 @@
 library(shiny)
 library(dplyr)
 library(fmsb)
+library(shinyWidgets)
+library(ggplot2)
 
 char_df <- read.csv("USA_Housing.csv")
+char_df$Avg..Area.House.Age <- round(char_df$Avg..Area.House.Age)
 
 #make a variable for the analysis page
 analysis <- fluidPage(
   titlePanel(""),
   sidebarLayout(
     sidebarPanel(
-      h2("Control Panel"),
+      h2("Selection"),
       selectInput(
         inputId = "char",
         label = "Select  a house age",
-        choices = char_df$Character
+        choices = char_df$Avg..Area.House.Age
       )
     ),
     mainPanel(
-      tabsetPanel(
-        tabPanel("Plot",  plotOutput(outputId = "radar")),
-        tabPanel("Table", tableOutput(outputId = "table"))
-      )
-    ))
+      plotOutput(outputId = "scatter", brush = "brush"),
+      tableOutput(outputId = "data")
+    )
+  )
 )
 
 #define the UI
@@ -37,6 +39,9 @@ are incredible important to accomplish this, and that is what our dataset is
 trying to answer by providing tons of data on the US housing market.."),
                   
                  ),
+                 # setBackgroundImage(
+                 #   src = "https://images.seattletimes.com/wp-content/uploads/2021/12/12272021_real-estate_165832.jpg?d=768x489"
+                 # ),
                  tabPanel("Scatter plot", analysis),
                  tabPanel("Bar Chart", h1("TODO")),
                  #tabPanel("Pie Chart", pie)
@@ -45,25 +50,15 @@ trying to answer by providing tons of data on the US housing market.."),
 print(ui)
 
 server <- function(input, output){
-  radar_table <- function(name){
-    data_pt <- filter(char_df, Character == input$char)
-    data_pt <- select(data_pt, -c(Character, Class))
-    
-    min_pt <- summarise_all(char_df, min)
-    min_pt <- select(min_pt, -c(Character, Class))
-    
-    max_pt <- summarise_all(char_df, max)
-    max_pt <- select(max_pt, -c(Character, Class))
-    
-    do.call("rbind", list(max_pt, min_pt, data_pt))
-  }
-  output$table <- renderTable({
-    #filter(char_df, Character == input$char)
-    radar_table(input$char)
+  
+  output$scatter <- renderPlot({
+    filter_df <- filter(char_df, Avg..Area.House.Age == input$char)
+    ggplot(data = filter_df, aes(x = Price, y = Area.Population)) + geom_point(aes(col=Avg..Area.Income))
   })
   
-  output$radar <- renderPlot({
-    radarchart(radar_table(input$char))
+  output$data <- renderTable({
+    #filter_df <- filter(char_df, Avg..Area.House.Age <= input$char)
+    brushedPoints(char_df, input$brush, xvar = "Price", yvar = "Area.Population")
   })
 }
 
