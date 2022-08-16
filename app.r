@@ -3,19 +3,20 @@ library(dplyr)
 library(fmsb)
 library(shinyWidgets)
 library(ggplot2)
+library(plotly)
 
 char_df <- read.csv("USA_Housing.csv")
 char_df$Avg..Area.House.Age <- round(char_df$Avg..Area.House.Age)
 
 #make a variable for the analysis page
 analysis <- fluidPage(
-  titlePanel(""),
+  titlePanel("House Price and the population in the houses' area"),
   sidebarLayout(
     sidebarPanel(
       h2("Selection"),
       selectInput(
-        inputId = "char",
-        label = "Select  a house age",
+        inputId = "bar_input",
+        label = "Select a house age",
         choices = char_df$Avg..Area.House.Age
       )
     ),
@@ -34,6 +35,35 @@ analysis <- fluidPage(
   )
 )
 
+bar_chart <-fluidPage(
+  titlePanel("Population In Different House Age"),
+  sidebarLayout(
+    sidebarPanel(
+      h2("Control Panel"),
+      selectInput(
+        inputId = "char",
+        label = "Select  a house age",
+        choices = char_df$Avg..Area.House.Age
+      )
+    ),
+    mainPanel(
+      p("The purpose of this chart is that we want to explore whether older houses
+    have more people living in, and what age houses are most preferred by 
+    people. Before I draw the chart, I have rounded all the house age to an
+    integer so that it will help me to draw and explained the graph better.
+    As the graph show, we can easily see the population is increasing from 0 
+    years house to 6 years house and then the population is decreasing from 6
+    years house to 10 years house. Overall, the sixth years house is the most
+    popular house age. We think that People don't like houses that are too new
+    or too old."),
+      plotOutput(outputId = "bar_output", brush = "brush")
+     # tableOutput(outputId = "data")
+    )
+  )
+)
+
+
+
 #define the UI
 ui <- navbarPage("USA Housing",
                  tabPanel(
@@ -51,7 +81,7 @@ trying to answer by providing tons of data on the US housing market.."),
                  #   src = "https://images.seattletimes.com/wp-content/uploads/2021/12/12272021_real-estate_165832.jpg?d=768x489"
                  # ),
                  tabPanel("Scatter plot", analysis),
-                 tabPanel("Bar Chart", h1("TODO")),
+                 tabPanel("Bar Chart", bar_chart)
                  #tabPanel("Pie Chart", pie)
 )
 
@@ -68,6 +98,16 @@ server <- function(input, output){
     filter_df <- filter(char_df, Avg..Area.House.Age == input$char)
     brushedPoints(filter_df, input$brush, xvar = "Price", yvar = "Area.Population")
   })
+  output$bar_output <- renderPlot({
+    df_group_price <- char_df %>% group_by(Avg..Area.House.Age) %>%
+      summarise(total_population = round(sum(Area.Population)),
+                .groups = "drop")
+    filter_df <- filter(df_group_price, Avg..Area.House.Age == input$bar_input)
+    barplot(filter_df$Avg..Area.House.Age)
+#    plot_ly(data = char_df, x = ~Avg..Area.House.Age, y = ~Area.Population, 
+#      type = "bar") 
+  })
+  
 }
 
 shinyApp(ui = ui, server = server)
