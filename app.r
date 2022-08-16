@@ -20,6 +20,14 @@ analysis <- fluidPage(
       )
     ),
     mainPanel(
+      p("This scatter plot is made with the house price as its x value and the 
+      area population of the said houses as its y value. The purpose of the 
+      chart is to show their relationship between the house prices and the 
+      population of the area in which the houses are. From the chart, it is 
+      clear that there is a positive correlation between the house price and 
+      the population of the area where the houses are. Thus, houses are tend to 
+      be more expensive since the high demand due to the high population, 
+      possibly for the landowners to earn more profits."),
       plotOutput(outputId = "scatter", brush = "brush"),
       tableOutput(outputId = "data")
     )
