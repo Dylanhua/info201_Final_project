@@ -57,8 +57,8 @@ server <- function(input, output){
   })
   
   output$data <- renderTable({
-    #filter_df <- filter(char_df, Avg..Area.House.Age <= input$char)
-    brushedPoints(char_df, input$brush, xvar = "Price", yvar = "Area.Population")
+    filter_df <- filter(char_df, Avg..Area.House.Age == input$char)
+    brushedPoints(filter_df, input$brush, xvar = "Price", yvar = "Area.Population")
   })
 }
 
