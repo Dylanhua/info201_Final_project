@@ -7,6 +7,7 @@ library(plotly)
 
 char_df <- read.csv("USA_Housing.csv")
 char_df$Avg..Area.House.Age <- round(char_df$Avg..Area.House.Age)
+char_df$Price <- round(char_df$Price)
 
 #make a variable for the analysis page
 analysis <- fluidPage(
@@ -14,11 +15,13 @@ analysis <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       h2("Selection"),
-      selectInput(
-        inputId = "bar_input",
-        label = "Select a house age",
-        choices = char_df$Avg..Area.House.Age
-      )
+      sliderInput(
+        inputId = "price",
+        label = "Filter by Housing Prices",
+        min = min(char_df$Price),
+        max = max(char_df$Price),
+        value = max(char_df$Price)
+      ),
     ),
     mainPanel(
       p("This scatter plot is made with the house price as its x value and the 
@@ -90,14 +93,15 @@ print(ui)
 server <- function(input, output){
   
   output$scatter <- renderPlot({
-    filter_df <- filter(char_df, Avg..Area.House.Age == input$char)
+    filter_df <- filter(char_df, Price <= input$price)
     ggplot(data = filter_df, aes(x = Price, y = Area.Population)) + geom_point(aes(col=Avg..Area.Income))
   })
   
   output$data <- renderTable({
-    filter_df <- filter(char_df, Avg..Area.House.Age == input$char)
+    filter_df <- filter(char_df, Price <= input$price)
     brushedPoints(filter_df, input$brush, xvar = "Price", yvar = "Area.Population")
   })
+  
   output$bar_output <- renderPlot({
     df_group_price <- char_df %>% group_by(Avg..Area.House.Age) %>%
       summarise(total_population = round(sum(Area.Population)),
