@@ -65,7 +65,29 @@ bar_chart <-fluidPage(
   )
 )
 
-
+pie <-fluidPage(
+  titlePanel("Percentage of house price sum in different house age"),
+  sidebarLayout(
+    sidebarPanel(
+      h2("Control Panel"),
+      selectInput(
+        inputId = "pie",
+        label = "Select a house age",
+        choices = char_df$Avg..Area.House.Age
+      )
+    ),
+    mainPanel(
+      p("The third chat is a pie chart which describes the percentage of house price in 
+different age of houses from 3 to 10 years.The purpose of this pie chart is 
+going to describe what age's house have the most value in the housing market 
+and it could help the future house buyers decision. Because house age make a 
+huge difference such as the house features, public facility, and the community 
+quality. From the chart,we can tell 6 years old houses are most valuable in 
+the US housing dataset. "),
+      plotOutput(outputId = "pie_output")
+    )
+  )
+)
 
 #define the UI
 ui <- navbarPage("USA Housing",
@@ -84,11 +106,9 @@ trying to answer by providing tons of data on the US housing market.."),
                  #   src = "https://images.seattletimes.com/wp-content/uploads/2021/12/12272021_real-estate_165832.jpg?d=768x489"
                  # ),
                  tabPanel("Scatter plot", analysis),
-                 tabPanel("Bar Chart", bar_chart)
-                 #tabPanel("Pie Chart", pie)
+                 tabPanel("Bar Chart", bar_chart),
+                 tabPanel("Pie Chart", pie)
 )
-
-print(ui)
 
 server <- function(input, output){
   
@@ -110,6 +130,16 @@ server <- function(input, output){
     barplot(filter_df$Avg..Area.House.Age)
 #    plot_ly(data = char_df, x = ~Avg..Area.House.Age, y = ~Area.Population, 
 #      type = "bar") 
+  })
+  
+  output$pie_output <- renderPlot({
+    filter_df <- filter(char_df, Avg..Area.House.Age <= input$pie)
+    fig <- plot_ly(filter_df, labels = ~Avg..Area.House.Age, values = ~Price, type = 'pie')
+    # fig <- fig %>% layout(title = 'Percentage of house price sum in different house age',
+    #                       xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+    #                       yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+    fig
   })
   
 }
