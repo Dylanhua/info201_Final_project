@@ -88,7 +88,7 @@ and it could help the future house buyers decision. Because house age make a
 huge difference such as the house features, public facility, and the community 
 quality. From the chart,we can tell 6 years old houses are most valuable in 
 the US housing dataset. "),
-      plotOutput(outputId = "pie_output")
+      plotlyOutput(outputId = "pie_output")
     )
   )
 )
@@ -141,12 +141,9 @@ server <- function(input, output){
 #    g + geom_bar
   })
   
-  output$pie_output <- renderPlot({
+  output$pie_output <- renderPlotly({
     filter_df <- filter(char_df, Avg..Area.House.Age <= input$pie)
     fig <- plot_ly(filter_df, labels = ~Avg..Area.House.Age, values = ~Price, type = 'pie')
-    # fig <- fig %>% layout(title = 'Percentage of house price sum in different house age',
-    #                       xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-    #                       yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 
     fig
   })
