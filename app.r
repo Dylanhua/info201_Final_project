@@ -43,11 +43,15 @@ bar_chart <-fluidPage(
   sidebarLayout(
     sidebarPanel(
       h2("Control Panel"),
-      selectInput(
-        inputId = "char",
+      sliderInput(
+        inputId = "bar_input",
         label = "Select  a house age",
-        choices = char_df$Avg..Area.House.Age
+        min = min(char_df$Avg..Area.House.Age),
+        max = max(char_df$Avg..Area.House.Age),
+        value = max(char_df$Avg..Area.House.Age)
       )
+      
+      
     ),
     mainPanel(
       p("The purpose of this chart is that we want to explore whether older houses
@@ -59,7 +63,7 @@ bar_chart <-fluidPage(
     years house to 10 years house. Overall, the sixth years house is the most
     popular house age. We think that People don't like houses that are too new
     or too old."),
-      plotOutput(outputId = "bar_output", brush = "brush")
+      plotlyOutput(outputId = "bar_output")
      # tableOutput(outputId = "data")
     )
   )
@@ -110,6 +114,7 @@ trying to answer by providing tons of data on the US housing market.."),
                  tabPanel("Pie Chart", pie)
 )
 
+            
 server <- function(input, output){
   
   output$scatter <- renderPlot({
@@ -121,15 +126,19 @@ server <- function(input, output){
     filter_df <- filter(char_df, Price <= input$price)
     brushedPoints(filter_df, input$brush, xvar = "Price", yvar = "Area.Population")
   })
-  
-  output$bar_output <- renderPlot({
+
+  output$bar_output <- renderPlotly({
     df_group_price <- char_df %>% group_by(Avg..Area.House.Age) %>%
-      summarise(total_population = round(sum(Area.Population)),
-                .groups = "drop")
-    filter_df <- filter(df_group_price, Avg..Area.House.Age == input$bar_input)
-    barplot(filter_df$Avg..Area.House.Age)
-#    plot_ly(data = char_df, x = ~Avg..Area.House.Age, y = ~Area.Population, 
-#      type = "bar") 
+      summarise(total_population = round(sum(Area.Population)))
+    
+    filter_df <- filter(df_group_price, Avg..Area.House.Age <= input$bar_input)
+    
+    plot_ly(data = filter_df, x = ~Avg..Area.House.Age, y = ~total_population, 
+            type = "bar")
+#    barplot(filter_df$Avg..Area.House.Age)
+
+#    g <- ggplot(df_group_price(), aes( y = ,Area.Population , x = Avg..Area.House.Age ))
+#    g + geom_bar
   })
   
   output$pie_output <- renderPlot({
