@@ -21,7 +21,7 @@ analysis <- fluidPage(
         min = min(char_df$Price),
         max = max(char_df$Price),
         value = max(char_df$Price)
-      ),
+      )
     ),
     mainPanel(
       p("This scatter plot is made with the house price as its x value and the 
@@ -93,10 +93,46 @@ the US housing dataset. "),
   )
 )
 
+
+conclusion <- fluidPage(
+  titlePanel("Key Takeaways"),
+  sidebarPanel(
+    p("It is clear from this analysis that areas with more population have 
+      pricer houses, so if you want to get a cheaper house with a lower income,
+      you might want to move to a place with relatively low population.")
+  ),
+  sidebarPanel(
+    p("")
+  ),
+  sidebarPanel(
+    p("")
+  )
+)
+
+
 #define the UI
 ui <- navbarPage("USA Housing",
                  tabPanel(
                    "Info",
+                   tags$style(
+                     "@import url('https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap');
+                     .navbar-nav {
+                              font-size: 20px;
+                              font-weight: bold;
+                              background-color: orange;
+                            }
+                            .link {
+                              font-size: 18px
+                            }
+                            p {
+                              font-size: 18px;
+                              color: orange;
+                            }
+                            h1, h2, tr {
+                              color: orange;
+                              font-family: 'Yusei Magic', sans-serif;
+                            }"
+                   ),
                    h1("USA Housing Dataset"),
                    p("Houses could be the most valuable asset for most people, and different areas
 with different variables will affect the prices of the housing prices of those
@@ -104,14 +140,25 @@ areas. To analyze what variables have a direct impact on the housing prices in
 an area, a dataset with many values related to various areas' housing markets
 are incredible important to accomplish this, and that is what our dataset is
 trying to answer by providing tons of data on the US housing market.."),
-                  
+                   img (
+                     src = "https://images.seattletimes.com/wp-content/uploads/2021/12/12272021_real-estate_165832.jpg?d=768x489"
+                   ),
+                   
+                   h1("Dataset Information"),
+                   p("The data we used came from a dataset that includes
+                     the average house price, address, averge area income, area
+                     population, average house age, average number of rooms and
+                     bedrooms of the houses from 5000 areas. We got the dataset 
+                     from kaggle.com, learn more"),
+                   url <- a(class = "link", "here", href="https://www.kaggle.com/datasets/farhankarim1/usa-house-prices?resource=download")
                  ),
                  # setBackgroundImage(
                  #   src = "https://images.seattletimes.com/wp-content/uploads/2021/12/12272021_real-estate_165832.jpg?d=768x489"
                  # ),
                  tabPanel("Scatter plot", analysis),
                  tabPanel("Bar Chart", bar_chart),
-                 tabPanel("Pie Chart", pie)
+                 tabPanel("Pie Chart", pie),
+                 tabPanel("Conclusion", conclusion)
 )
 
             
