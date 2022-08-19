@@ -74,10 +74,13 @@ pie <-fluidPage(
   sidebarLayout(
     sidebarPanel(
       h2("Control Panel"),
-      selectInput(
+      sliderInput(
         inputId = "pie",
         label = "Select a house age",
-        choices = char_df$Avg..Area.House.Age
+        # choices = char_df$Avg..Area.House.Age,
+        min = min(char_df$Avg..Area.House.Age),
+        max = max(char_df$Avg..Area.House.Age),
+        value = max(char_df$Avg..Area.House.Age)
       )
     ),
     mainPanel(
@@ -105,7 +108,9 @@ conclusion <- fluidPage(
     p("")
   ),
   sidebarPanel(
-    p("")
+    p("It is comprehensible that 6 years house is the most popular with 
+      the most values in the US housing dataset, thereefore, if you want to 
+      buy a house, you should look up the houses the build in 2015 or 2016")
   )
 )
 
@@ -193,6 +198,10 @@ server <- function(input, output){
     fig <- plot_ly(filter_df, labels = ~Avg..Area.House.Age, values = ~Price, type = 'pie')
 
     fig
+
+    # ggplot(filter_df, aes(x = Avg..Area.House.Age, y = Price, fill = Avg..Area.House.Age)) +
+    #   geom_bar(stat="identity", width=1) +
+    #   coord_polar("y", start=0)
   })
   
 }
